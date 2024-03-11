@@ -6,6 +6,9 @@ vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
+vim.o.updatetime = 300
+vim.o.incsearch = false
+vim.wo.signcolumn = 'yes'
 
 vim.opt.number = true
 vim.opt.autoindent = true
@@ -192,18 +195,54 @@ cmp.setup.cmdline(":", {
 require("gitsigns").setup({
   signcolumn = true,
   numhl = true,
-  linehl = flase,
+  linehl = false,
   word_diff = false,
   current_line_blame = true,
 })
 
 local builtin = require("statuscol.builtin")
 require("statuscol").setup({
-  relculright = false,
   segments = {
-    { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
-    { text = { " %s" },                 click = "v:lua.ScSa" },
-    { text = { builtin.lnumfunc, " " }, click = "v:lua.ScLa" },
+    {
+      text = {
+        -- Don't like implementation, but it will do for now.
+        function(args)
+          local diagnostics = vim.diagnostic.get(args.bufnr, { lnum = args.lnum - 1 })
+          local severity = 0
+          for _, d in ipairs(diagnostics) do
+            if d.severity == 1 then
+              severity = 1
+              break
+            elseif d.severity == 2 then
+              severity = 2
+            end
+          end
+          if severity == 1 then
+            return "%#ErrorMsg#"
+          elseif severity == 2 then
+            return "%#WarningMsg#"
+          else
+            return " "
+          end
+        end,
+        " %*",
+      },
+      sign = { name = { "Diagnostic" } },
+      click = "v:lua.ScSa"
+    },
+    {
+      text = { builtin.lnumfunc },
+      condition = { true, builtin.not_empty },
+      click = "v:lua.ScLa"
+    },
+    {
+      sign = { name = { "Git*" } },
+      click = "v:lua.ScSa"
+    },
+    {
+      text = { builtin.foldfunc, " " },
+      click = "v:lua.ScFa"
+    },
   },
 })
 
@@ -258,6 +297,9 @@ require("which-key").register({
   },
   ['<leader>p'] = {
     h = { "<cmd>Gitsigns preview_hunk<cr>", "Preview hunk" },
+  },
+  ['<leader>s'] = {
+    h = { "<cmd>VGit buffer_hunk_stage<cr>", "Stage hunk" },
   },
   ['<leader>i'] = { vim.diagnostic.open_float, "Diagnostic float" },
   ['<leader>e'] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Diagnostics buffer" },
