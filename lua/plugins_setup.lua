@@ -218,7 +218,8 @@ local language_servers = lspconfig.util.available_servers()
 for _, ls in ipairs(language_servers) do
   lspconfig[ls].capabilites = capabilities
 end
-require("ufo").setup()
+local ufo = require("ufo")
+ufo.setup()
 
 -- Which Key (NOTE: Some key mappings are set elswhere)
 require("which-key").register({
@@ -239,7 +240,8 @@ require("which-key").register({
   ["<leader>X"] = { "<cmd>%bd|e#<cr>", "Delete other buffers" },
   ["<leader>g"] = {
     d = { "<cmd>VGit project_diff_preview<cr>", "Git diff" },
-    D = { "<cmd>VGit buffer_diff_preview<cr>", "Git buffer diff" }
+    D = { "<cmd>VGit buffer_diff_preview<cr>", "Git buffer diff" },
+    b = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
   },
   ["g"] = {
     r = { "<cmd>Telescope lsp_references<cr>", "Find references" },
@@ -249,27 +251,37 @@ require("which-key").register({
     I = { "<cmd>Telescope lsp_incoming_calls<cr>", "Find incoming calls" },
     O = { "<cmd>Telescope lsp_outgoing_calls<cr>", "Find outgoing calls" },
   },
-  ['<leader>r'] = { vim.lsp.buf.rename, "Rename" },
+  ["C-k"] = { vim.lsp.buf.signature_help, "Show signature" },
+  ['<leader>r'] = {
+    n = { vim.lsp.buf.rename, "Rename" },
+    h = { "<cmd>Gitsigns reset_hunk<cr>", "Reset hunk" },
+  },
+  ['<leader>p'] = {
+    h = { "<cmd>Gitsigns preview_hunk<cr>", "Preview hunk" },
+  },
   ['<leader>i'] = { vim.diagnostic.open_float, "Diagnostic float" },
   ['<leader>e'] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Diagnostics buffer" },
   ['<leader>E'] = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
   ['<leader>k'] = {
     m = { "<cmd>Telescope keymaps<cr>", "Show Keymaps" },
   },
-  ["C-k"] = { vim.lsp.buf.signature_help, "Show signature" },
+  ["]"] = {
+    q = { "<cmd>cnext<cr>", "Next quick list item", nowait = true },
+    c = { "<cmd>VGit hunk_down<cr>", "Next hunk", nowait = true },
+  },
+  ["["] = {
+    q = { "<cmd>cprevious<cr>", "Previous quick list item", nowait = true },
+    c = { "<cmd>VGit hunk_up<cr>", "Previous hunk", nowait = true },
+  },
+  ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
+  ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
 })
 
+vim.keymap.set("n", ";", ":", { desc = "Enter command mode", nowait = true })
 vim.keymap.set("n", "zR", require("ufo").openAllFolds)
 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
 vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
-
-vim.keymap.set("n", ";", ":", { desc = "Enter command mode", nowait = true })
-vim.keymap.set("n", "]q", "<cmd>cnext<cr>", { desc = "Next Quick List Item", nowait = true })
-vim.keymap.set("n", "[q", "<cmd>cprevious<cr>", { desc = "Previous Quick List Item", nowait = true })
-vim.keymap.set("n", "<Tab>", "<cmd>bnext<cr>", { desc = "Next Buffer", nowait = true })
-vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous Buffer", nowait = true })
-vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory", nowait = true })
 
 require("Comment").setup({
   toggler = {
