@@ -319,6 +319,7 @@ require("which-key").register({
   ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
 })
 
+vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory", nowait = true })
 vim.keymap.set("n", ";", ":", { desc = "Enter command mode", nowait = true })
 vim.keymap.set("n", "zR", require("ufo").openAllFolds)
 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
