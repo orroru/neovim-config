@@ -20,8 +20,6 @@ vim.opt.colorcolumn = "81"
 vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
 
-require("mini.starter").setup()
-
 require('github-theme').setup({
   options = {
     transparent = true,
@@ -34,7 +32,6 @@ require("deadcolumn").setup({
 require("sttusline").setup({
   statusline_color = "Normal",
   laststatus = 3,
-
 })
 require("mini.animate").setup()
 require("noice").setup({
@@ -341,3 +338,4 @@ require("Comment").setup({
     eol = "<leader>cl",
   }
 })
+
