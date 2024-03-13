@@ -287,7 +287,7 @@ require("which-key").register({
     I = { "<cmd>Telescope lsp_incoming_calls<cr>", "Find incoming calls" },
     O = { "<cmd>Telescope lsp_outgoing_calls<cr>", "Find outgoing calls" },
   },
-  ["C-k"] = { vim.lsp.buf.signature_help, "Show signature" },
+  ["<C-k>"] = { vim.lsp.buf.signature_help, "Show signature" },
   ['<leader>r'] = {
     n = { vim.lsp.buf.rename, "Rename" },
     h = { "<cmd>Gitsigns reset_hunk<cr>", "Reset hunk" },
@@ -296,7 +296,7 @@ require("which-key").register({
     h = { "<cmd>Gitsigns preview_hunk<cr>", "Preview hunk" },
   },
   ['<leader>s'] = {
-    h = { "<cmd>VGit buffer_hunk_stage<cr>", "Stage hunk" },
+    h = { "<cmd>Gitsigns stage_hunk<cr>", "Stage hunk" },
   },
   ['<leader>i'] = { vim.diagnostic.open_float, "Diagnostic float" },
   ['<leader>e'] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Diagnostics buffer" },
@@ -306,11 +306,11 @@ require("which-key").register({
   },
   ["]"] = {
     q = { "<cmd>cnext<cr>", "Next quick list item", nowait = true },
-    c = { "<cmd>VGit hunk_down<cr>", "Next hunk", nowait = true },
+    c = { "<cmd>Gitsigns next_hunk<cr>", "Next hunk", nowait = true },
   },
   ["["] = {
     q = { "<cmd>cprevious<cr>", "Previous quick list item", nowait = true },
-    c = { "<cmd>VGit hunk_up<cr>", "Previous hunk", nowait = true },
+    c = { "<cmd>Gitsigns prev_hunk<cr>", "Previous hunk", nowait = true },
   },
   ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
   ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
