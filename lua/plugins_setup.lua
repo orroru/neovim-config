@@ -9,7 +9,6 @@ vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 vim.o.updatetime = 300
 vim.o.incsearch = false
 vim.wo.signcolumn = 'yes'
-
 vim.opt.number = true
 vim.opt.autoindent = true
 vim.opt.tabstop = 2
@@ -19,6 +18,8 @@ vim.opt.expandtab = true
 vim.opt.colorcolumn = "81"
 vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
+vim.opt.nuw = 1
+vim.opt.statuscolumn = " %s%=%l "
 
 require('github-theme').setup({
   options = {
@@ -49,11 +50,40 @@ require("noice").setup({
 require("notify").setup({ background_colour = "#000000" })
 vim.cmd("highlight! link NormalFloat Normal")
 
+local diagnostic_icons = {
+  error = '⚠',
+  warn = '⚠',
+  hint = '󰋼',
+  info = ''
+}
+
+vim.diagnostic.config({
+  severity_sort = true,
+})
+
 -- QoL
 require("better_escape").setup({ mapping = { "jk" } })
 
 -- Git
-require("vgit").setup()
+local vgit = require("vgit")
+vgit.toggle_live_gutter()
+vgit.toggle_live_blame()
+vgit.setup()
+
+require("gitsigns").setup({
+  signs = {
+    add          = { text = '│' },
+    change       = { text = '│' },
+    delete       = { text = '│' },
+    topdelete    = { text = '‾' },
+    changedelete = { text = '~' },
+    untracked    = { text = '┆' },
+  },
+  signcolumn = true,
+  numhl = true,
+  current_line_blame = true,
+  _extmark_signs = true,
+})
 
 -- Files
 require("oil").setup()
@@ -95,6 +125,7 @@ require("nvim-treesitter.configs").setup({
 
 -- LSP, Autocompletion, Formatting and etc.
 local lsp_zero = require("lsp-zero")
+lsp_zero.set_sign_icons(diagnostic_icons)
 
 lsp_zero.on_attach(function(_, bufnr)
   lsp_zero.default_keymaps({ buffer = bufnr })
@@ -189,59 +220,6 @@ cmp.setup.cmdline(":", {
   })
 })
 
-require("gitsigns").setup({
-  signcolumn = true,
-  numhl = true,
-  linehl = false,
-  word_diff = false,
-  current_line_blame = true,
-})
-
-local builtin = require("statuscol.builtin")
-require("statuscol").setup({
-  segments = {
-    {
-      text = {
-        -- Don't like implementation, but it will do for now.
-        function(args)
-          local diagnostics = vim.diagnostic.get(args.bufnr, { lnum = args.lnum - 1 })
-          local severity = 0
-          for _, d in ipairs(diagnostics) do
-            if d.severity == 1 then
-              severity = 1
-              break
-            elseif d.severity == 2 then
-              severity = 2
-            end
-          end
-          if severity == 1 then
-            return "%#ErrorMsg#"
-          elseif severity == 2 then
-            return "%#WarningMsg#"
-          else
-            return " "
-          end
-        end,
-        " %*",
-      },
-      sign = { name = { "Diagnostic" } },
-      click = "v:lua.ScSa"
-    },
-    {
-      text = { builtin.lnumfunc },
-      condition = { true, builtin.not_empty },
-      click = "v:lua.ScLa"
-    },
-    {
-      sign = { name = { "Git*" } },
-      click = "v:lua.ScSa"
-    },
-    {
-      text = { builtin.foldfunc, " " },
-      click = "v:lua.ScFa"
-    },
-  },
-})
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.foldingRange = {

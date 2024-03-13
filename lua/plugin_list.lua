@@ -99,6 +99,7 @@ return {
     event = { "BufEnter" },
   },
   {
+    "lewis6991/gitsigns.nvim",
   },
   {
     "numToStr/Comment.nvim",
@@ -108,14 +109,6 @@ return {
     "kevinhwang91/nvim-ufo",
     dependencies = {
       "kevinhwang91/promise-async",
-      {
-        "luukvbaal/statuscol.nvim",
-        dependencies = {
-          {
-            "lewis6991/gitsigns.nvim",
-          },
-        },
-      },
     },
     event = "BufReadPost",
   },
