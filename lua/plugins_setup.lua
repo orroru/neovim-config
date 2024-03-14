@@ -6,8 +6,7 @@ vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
-vim.o.updatetime = 300
-vim.o.incsearch = false
+vim.o.incsearch = true
 vim.wo.signcolumn = 'yes'
 vim.opt.number = true
 vim.opt.autoindent = true
@@ -54,7 +53,7 @@ local diagnostic_icons = {
   error = '⚠',
   warn = '⚠',
   hint = '󰋼',
-  info = ''
+  info = '',
 }
 
 vim.diagnostic.config({
@@ -159,14 +158,6 @@ cmp.setup({
   },
   mapping = cmp.mapping.preset.insert({
     ['<CR>'] = cmp.mapping.confirm({ select = false }),
-
-    ['C-n'] = cmp.mapping(function()
-      if cmp.visible() then
-        cmp.select_next_item({ behavior = 'insert' })
-      else
-        cmp.complete()
-      end
-    end),
 
     -- Ctrl+Space to trigger completion menu
     ['<C-Space>'] = cmp.mapping.complete(),
