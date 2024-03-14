@@ -64,6 +64,16 @@ vim.diagnostic.config({
 -- QoL
 require("better_escape").setup({ mapping = { "jk" } })
 
+local function closeOtherBuffers()
+  local curbufnr = vim.api.nvim_get_current_buf()
+  local buflist = vim.api.nvim_list_bufs()
+  for _, bufnr in ipairs(buflist) do
+    if vim.bo[bufnr].buflisted and bufnr ~= curbufnr then
+      vim.cmd('bd ' .. tostring(bufnr))
+    end
+  end
+end
+
 -- Git
 local vgit = require("vgit")
 vgit.toggle_live_gutter()
@@ -251,7 +261,7 @@ require("which-key").register({
   ["<leader>Q"] = { "<cmd>Telescope diagnostics<cr>", "Show diagnostics" },
   ["<leader>n"] = { "<cmd>enew<cr>", "New buffer" },
   ["<leader>x"] = { "<cmd>bd<cr>", "Delete buffer" },
-  ["<leader>X"] = { "<cmd>%bd|e#<cr>", "Delete other buffers" },
+  ["<leader>X"] = { closeOtherBuffers, "Delete other buffers" },
   ["<leader>g"] = {
     d = { "<cmd>VGit project_diff_preview<cr>", "Git diff" },
     D = { "<cmd>VGit buffer_diff_preview<cr>", "Git buffer diff" },
@@ -316,4 +326,3 @@ require("Comment").setup({
     eol = "<leader>cl",
   }
 })
-
