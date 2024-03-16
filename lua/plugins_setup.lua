@@ -186,6 +186,15 @@ cmp.setup({
   formatting = {
     format = lspkind.cmp_format({}),
   },
+  sorting = {
+    comparators = {
+      cmp.config.compare.offset,
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.kind,
+    },
+  },
 })
 
 cmp.setup.cmdline("/", {
@@ -293,6 +302,9 @@ require("which-key").register({
   },
   ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
   ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
+  ["<leader>c"] = {
+    a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code actions" },
+  },
 })
 
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory", nowait = true })
