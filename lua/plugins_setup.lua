@@ -88,6 +88,14 @@ require("gitsigns").setup({
   current_line_blame = true,
   _extmark_signs = true,
 })
+require("diffview").setup()
+local function toggleDiffview()
+  if next(require('diffview.lib').views) == nil then
+    vim.cmd('DiffviewOpen')
+  else
+    vim.cmd('DiffviewClose')
+  end
+end
 
 -- Files
 require("oil").setup()
@@ -258,8 +266,7 @@ require("which-key").register({
   ["<leader>x"] = { "<cmd>bd<cr>", "Delete buffer" },
   ["<leader>X"] = { closeOtherBuffers, "Delete other buffers" },
   ["<leader>g"] = {
-    d = { "<cmd>VGit project_diff_preview<cr>", "Git diff" },
-    D = { "<cmd>VGit buffer_diff_preview<cr>", "Git buffer diff" },
+    d = { toggleDiffview, "Git diff" },
     b = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
   },
   ["g"] = {
