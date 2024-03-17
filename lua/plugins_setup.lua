@@ -74,11 +74,6 @@ local function closeOtherBuffers()
 end
 
 -- Git
-local vgit = require("vgit")
-vgit.toggle_live_gutter()
-vgit.toggle_live_blame()
-vgit.setup()
-
 require("gitsigns").setup({
   signs = {
     add          = { text = '│' },

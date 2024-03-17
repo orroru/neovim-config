@@ -49,12 +49,6 @@ return {
     build = ":TSUpdate",
   },
   {
-    "tanvirtin/vgit.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-  },
-  {
     "williamboman/mason.nvim",
   },
   {
