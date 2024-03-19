@@ -109,4 +109,8 @@ return {
     },
     event = "BufReadPost",
   },
+  {
+    "ggandor/leap.nvim",
+    lazy = false,
+  },
 }

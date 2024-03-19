@@ -20,6 +20,38 @@ vim.opt.scrolloff = 5
 vim.opt.nuw = 1
 vim.opt.statuscolumn = " %s%=%l "
 
+
+-- Neovide specific
+if vim.g.neovide then
+  require('telescope').setup({
+    defaults = {
+      winblend = 100,
+    },
+  })
+  vim.opt.winblend = 100
+  vim.opt.pumblend = 100
+  vim.g.neovide_hide_mouse_when_typing = true
+  vim.g.neovide_transparency = 0.90
+  -- Remove buffer switch weird animation
+  --[[ vim.api.nvim_create_autocmd("BufLeave", {
+    callback = function()
+      vim.g.neovide_scroll_animation_length = 0
+      vim.g.neovide_cursor_animation_length = 0
+    end,
+  })
+  vim.api.nvim_create_autocmd("BufEnter", {
+    callback = function()
+      vim.fn.timer_start(70, function()
+        vim.g.neovide_scroll_animation_length = 0.3
+        vim.g.neovide_cursor_animation_length = 0.08
+      end)
+    end,
+  }) ]]
+else
+  require("mini.animate").setup()
+end
+
+
 require('github-theme').setup({
   options = {
     transparent = true,
@@ -33,7 +65,6 @@ require("sttusline").setup({
   statusline_color = "Normal",
   laststatus = 3,
 })
-require("mini.animate").setup()
 require("noice").setup({
   presets = {
     lsp_doc_border = true,
@@ -252,7 +283,7 @@ ufo.setup()
 require("which-key").register({
   ["<leader>f"] = {
     w = { "<cmd>Telescope live_grep<cr>", "Find word" },
-    f = { "<cmd>Telescope find_files<cr>", "Find file" },
+    f = { "<cmd>Telescope find_files path_display={'truncate'}<cr>", "Find file" },
     r = { "<cmd>Telescope oldfiles<cr>", "Recent files", noremap = false },
     n = { "<cmd>Telescope notify<cr>", "Show notification" },
     b = { "<cmd>Telescope buffers<cr>", "Show buffers" },
@@ -315,6 +346,9 @@ vim.keymap.set("n", "zR", require("ufo").openAllFolds)
 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
 vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
+vim.keymap.set({'n', 'x', 'o'}, 'f',  '<Plug>(leap-forward)')
+vim.keymap.set({'n', 'x', 'o'}, 'F',  '<Plug>(leap-backward)')
+vim.keymap.set({'n', 'x', 'o'}, 'gs', '<Plug>(leap-from-window)')
 
 require("Comment").setup({
   toggler = {
