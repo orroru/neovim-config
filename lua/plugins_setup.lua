@@ -20,7 +20,6 @@ vim.opt.scrolloff = 5
 vim.opt.nuw = 1
 vim.opt.statuscolumn = " %s%=%l "
 
-
 -- Neovide specific
 if vim.g.neovide then
   require('telescope').setup({
@@ -32,25 +31,24 @@ if vim.g.neovide then
   vim.opt.pumblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_transparency = 0.90
-  -- Remove buffer switch weird animation
-  --[[ vim.api.nvim_create_autocmd("BufLeave", {
-    callback = function()
-      vim.g.neovide_scroll_animation_length = 0
-      vim.g.neovide_cursor_animation_length = 0
-    end,
-  })
-  vim.api.nvim_create_autocmd("BufEnter", {
-    callback = function()
-      vim.fn.timer_start(70, function()
-        vim.g.neovide_scroll_animation_length = 0.3
-        vim.g.neovide_cursor_animation_length = 0.08
-      end)
-    end,
-  }) ]]
+  vim.g.neovide_window_floating_opacity = 100
+
+  vim.g.neovide_floating_blur_amount_x = 5.0
+  vim.g.neovide_floating_blur_amount_y = 5.0
+
+  vim.g.neovide_scale_factor = 1.0
+  local change_scale_factor = function(delta)
+    vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
+  end
+  vim.keymap.set("n", "<C-=>", function()
+    change_scale_factor(1.25)
+  end)
+  vim.keymap.set("n", "<C-->", function()
+    change_scale_factor(1 / 1.25)
+  end)
 else
   require("mini.animate").setup()
 end
-
 
 require('github-theme').setup({
   options = {
