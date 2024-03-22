@@ -256,7 +256,7 @@ cmp.setup.cmdline(":", {
     {
       name = "cmdline",
       option = {
-        ignore_cmds = { "Man", "!" },
+        ignore_cmds = { "Man" },
       },
     },
   })
@@ -324,11 +324,11 @@ require("which-key").register({
     m = { "<cmd>Telescope keymaps<cr>", "Show Keymaps" },
   },
   ["]"] = {
-    q = { "<cmd>cnext<cr>", "Next quick list item", nowait = true },
+    q = { '<cmd>cnext<cr>g`"', "Next quick list item", nowait = true },
     c = { "<cmd>Gitsigns next_hunk<cr>", "Next hunk", nowait = true },
   },
   ["["] = {
-    q = { "<cmd>cprevious<cr>", "Previous quick list item", nowait = true },
+    q = { '<cmd>cprevious<cr>g`"', "Previous quick list item", nowait = true },
     c = { "<cmd>Gitsigns prev_hunk<cr>", "Previous hunk", nowait = true },
   },
   ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
@@ -354,8 +354,8 @@ require("Comment").setup({
     block = "<leader>?",
   },
   opleader = {
-    line = "<leader>?",
-    block = "<leader>/",
+    line = "<leader>/",
+    block = "<leader>?",
   },
   extra = {
     above = "<leader>ck",
