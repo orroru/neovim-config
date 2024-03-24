@@ -61,7 +61,6 @@ if vim.g.neovide then
     change_scale_factor(1 / 1.25)
   end)
 
-  vim.cmd("hi! Normal blend=100")
   vim.cmd("hi! NormalFloat blend=100")
   vim.cmd("hi! FloatBorder blend=100")
   vim.cmd("hi! CursorLine blend=0")
