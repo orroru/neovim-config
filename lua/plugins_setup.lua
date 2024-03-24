@@ -1,3 +1,5 @@
+local vim = vim
+
 -- Theme & UI
 vim.o.timeout = true
 vim.o.timeoutlen = 500
@@ -20,15 +22,27 @@ vim.opt.scrolloff = 5
 vim.opt.nuw = 1
 vim.opt.statuscolumn = " %s%=%l "
 
+require("noice").setup({
+  lsp = {
+    override = {
+      ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+      ["vim.lsp.util.stylize_markdown"] = true,
+      ["cmp.entry.get_documentation"] = true,
+    }
+  }
+})
+require("notify").setup({ background_colour = "#000000" })
+require('github-theme').setup({
+  options = {
+    transparent = true,
+  },
+})
+vim.cmd('colorscheme github_dark')
+
 -- Neovide specific
 if vim.g.neovide then
-  require('telescope').setup({
-    defaults = {
-      winblend = 100,
-    },
-  })
+  vim.o.guifont = "JetBrainsMono Nerd Font:h12"
   vim.opt.winblend = 100
-  vim.opt.pumblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_transparency = 0.90
   vim.g.neovide_window_floating_opacity = 100
@@ -46,16 +60,20 @@ if vim.g.neovide then
   vim.keymap.set("n", "<C-->", function()
     change_scale_factor(1 / 1.25)
   end)
+
+  vim.cmd("hi! Normal blend=100")
+  vim.cmd("hi! NormalFloat blend=100")
+  vim.cmd("hi! FloatBorder blend=100")
+  vim.cmd("hi! CursorLine blend=0")
+  vim.cmd("hi! PmenuSel blend=0")
+  vim.cmd("hi! TelescopeMatching blend=0")
+  vim.cmd("hi! TelescopePreviewMatch guibg=#555555 blend=0")
+  vim.cmd("hi! Visual blend=0")
+  vim.cmd("hi! Pmenu blend=100")
 else
   require("mini.animate").setup()
 end
 
-require('github-theme').setup({
-  options = {
-    transparent = true,
-  },
-})
-vim.cmd('colorscheme github_dark')
 require("deadcolumn").setup({
   scope = "buffer",
 })
@@ -63,20 +81,6 @@ require("sttusline").setup({
   statusline_color = "Normal",
   laststatus = 3,
 })
-require("noice").setup({
-  presets = {
-    lsp_doc_border = true,
-  },
-  lsp = {
-    override = {
-      ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-      ["vim.lsp.util.stylize_markdown"] = true,
-      ["cmp.entry.get_documentation"] = true,
-    }
-  }
-})
-require("notify").setup({ background_colour = "#000000" })
-vim.cmd("highlight! link NormalFloat Normal")
 
 local diagnostic_icons = {
   error = '⚠',
@@ -87,6 +91,25 @@ local diagnostic_icons = {
 
 vim.diagnostic.config({
   severity_sort = true,
+})
+
+require('telescope').setup({
+  defaults = {
+    winblend = vim.g.neovide and 100 or 0,
+    borderchars = { "", "", "", "", "", "", "", "" },
+  },
+  pickers = {
+    buffers = {
+      mappings = {
+        n = {
+          ["<C-d>"] = require('telescope.actions').delete_buffer,
+        },
+        i = {
+          ["<C-d>"] = require('telescope.actions').delete_buffer,
+        },
+      },
+    },
+  },
 })
 
 -- QoL
@@ -109,7 +132,7 @@ require("gitsigns").setup({
     change       = { text = '│' },
     delete       = { text = '│' },
     topdelete    = { text = '‾' },
-    changedelete = { text = '~' },
+    changedelete = { text = '┃' },
     untracked    = { text = '┆' },
   },
   signcolumn = true,
@@ -186,7 +209,7 @@ local lspkind = require("lspkind")
 cmp.setup({
   preselect = cmp.PreselectMode.None,
   completion = {
-    completeopt = 'menu,menuone,noinsert',
+    completeopt = 'menu,menuone',
   },
   mapping = cmp.mapping.preset.insert({
     ['<CR>'] = cmp.mapping.confirm({ select = false }),
@@ -202,10 +225,6 @@ cmp.setup({
     ['<C-u>'] = cmp.mapping.scroll_docs(-4),
     ['<C-d>'] = cmp.mapping.scroll_docs(4),
   }),
-  window = {
-    completion = cmp.config.window.bordered({}),
-    documentation = cmp.config.window.bordered({ winhighlight = "Normal:NormalFloat" })
-  },
   snippet = {
     expand = function(args)
       require("luasnip").lsp_expand(args.body)
@@ -232,7 +251,7 @@ cmp.setup({
 cmp.setup.cmdline("/", {
   preselect = cmp.PreselectMode.None,
   completion = {
-    completeopt = 'menu,menuone,noselect,noinsert',
+    completeopt = 'menu,menuone,noselect',
   },
   mapping = cmp.mapping.preset.cmdline({
     ['<CR>'] = cmp.mapping.confirm({ select = false }),
@@ -245,7 +264,7 @@ cmp.setup.cmdline("/", {
 cmp.setup.cmdline(":", {
   preselect = cmp.PreselectMode.None,
   completion = {
-    completeopt = 'menu,menuone,noselect,noinsert',
+    completeopt = 'menu,menuone,noselect',
   },
   mapping = cmp.mapping.preset.cmdline({
     ['<CR>'] = cmp.mapping.confirm({ select = false }),
@@ -256,7 +275,7 @@ cmp.setup.cmdline(":", {
     {
       name = "cmdline",
       option = {
-        ignore_cmds = { "Man" },
+        ignore_cmds = { "Man", "!" },
       },
     },
   })
@@ -279,12 +298,13 @@ ufo.setup()
 
 -- Which Key (NOTE: Some key mappings are set elswhere)
 require("which-key").register({
+  ["<leader><leader>"] = { "<cmd>Telescope buffers<cr>", "Show buffers" },
   ["<leader>f"] = {
     w = { "<cmd>Telescope live_grep<cr>", "Find word" },
     f = { "<cmd>Telescope find_files path_display={'truncate'}<cr>", "Find file" },
     r = { "<cmd>Telescope oldfiles<cr>", "Recent files", noremap = false },
     n = { "<cmd>Telescope notify<cr>", "Show notification" },
-    b = { "<cmd>Telescope buffers<cr>", "Show buffers" },
+    b = { "<cmd>Telescope buffers sort_lastused=true<cr>", "Show buffers" },
     s = { "<cmd>Telescope lsp_document_symbols<cr>", "Show document symbols" },
     S = { "<cmd>Telescope lsp_workspace_symbols<cr>", "Show workspace symbols" },
     m = { "<cmd>LspZeroFormat<cr>", "Format buffer" },
@@ -295,8 +315,12 @@ require("which-key").register({
   ["<leader>x"] = { "<cmd>bd<cr>", "Delete buffer" },
   ["<leader>X"] = { closeOtherBuffers, "Delete other buffers" },
   ["<leader>g"] = {
+    s = { "<cmd>Telescope git_status<cr>", "Git status" },
     d = { toggleDiffview, "Git diff" },
-    b = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
+    i = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
+    b = { "<cmd>Telescope git_branches<cr>", "Git branches" },
+    h = { "<cmd>Telescope git_bcommits<cr>", "Git file history" },
+    H = { "<cmd>Telescope git_commits<cr>", "Git history" },
   },
   ["g"] = {
     r = { "<cmd>Telescope lsp_references<cr>", "Find references" },
@@ -318,6 +342,7 @@ require("which-key").register({
     h = { "<cmd>Gitsigns stage_hunk<cr>", "Stage hunk" },
   },
   ['<leader>i'] = { vim.diagnostic.open_float, "Diagnostic float" },
+  ['<leader>t'] = { "<cmd>:terminal<cr>", "Terminal" },
   ['<leader>e'] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Diagnostics buffer" },
   ['<leader>E'] = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
   ['<leader>k'] = {
@@ -336,6 +361,20 @@ require("which-key").register({
   ["<leader>c"] = {
     a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code actions" },
   },
+  ["<C-w>"] = {
+    c = { "<cmd>tabclose<cr>", "Close tab" },
+    t = { "<cmd>tabnew<cr>", "New tab" },
+  },
+  ["<M-h>"] = { "<C-w>h", "Go to the left window" },
+  ["<M-j>"] = { "<C-w>j", "Go to the down window" },
+  ["<M-k>"] = { "<C-w>k", "Go to the up window" },
+  ["<M-l>"] = { "<C-w>l", "Go to the right window" },
+  ["<M-S-h>"] = { "<C-w><", "Decrease width" },
+  ["<M-S-j>"] = { "<C-w>-", "Decrese height" },
+  ["<M-S-k>"] = { "<C-w>+", "Increase height" },
+  ["<M-S-l>"] = { "<C-w>>", "Increase width" },
+  ["<M-e>"] = { "<C-w>_<C-w>|", "Expand" },
+  ["<M-S-e>"] = { "<C-w>=", "Un-Expand" },
 })
 
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory", nowait = true })
@@ -344,9 +383,10 @@ vim.keymap.set("n", "zR", require("ufo").openAllFolds)
 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
 vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
-vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)', { desc = "Leap forward" })                         
+vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)', { desc = "Leap forward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)', { desc = "Leap backward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'gs', '<Plug>(leap-from-window)', { desc = "Leap from window" })
+vim.keymap.set("t", '<C-Space>', '<C-\\><C-n>', { desc = "Escape terminal mode" })
 
 require("Comment").setup({
   toggler = {
