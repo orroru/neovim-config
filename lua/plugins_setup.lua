@@ -22,6 +22,26 @@ vim.opt.scrolloff = 5
 vim.opt.nuw = 1
 vim.opt.statuscolumn = " %s%=%l "
 
+local telescopeActions = require("telescope.actions")
+require('telescope').setup({
+  defaults = {
+    winblend = vim.g.neovide and 100 or 0,
+    borderchars = { "", "", "", "", "", "", "", "" },
+  },
+  pickers = {
+    buffers = {
+      mappings = {
+        n = {
+          ["<M-d>"] = telescopeActions.delete_buffer,
+        },
+        i = {
+          ["<M-d>"] = telescopeActions.delete_buffer,
+        },
+      },
+    },
+  },
+})
+
 require("noice").setup({
   lsp = {
     override = {
@@ -32,6 +52,7 @@ require("noice").setup({
   }
 })
 require("notify").setup({ background_colour = "#000000" })
+
 require('github-theme').setup({
   options = {
     transparent = true,
@@ -45,7 +66,6 @@ if vim.g.neovide then
   vim.opt.winblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_transparency = 0.90
-  vim.g.neovide_window_floating_opacity = 100
 
   vim.g.neovide_floating_blur_amount_x = 5.0
   vim.g.neovide_floating_blur_amount_y = 5.0
@@ -90,25 +110,6 @@ local diagnostic_icons = {
 
 vim.diagnostic.config({
   severity_sort = true,
-})
-
-require('telescope').setup({
-  defaults = {
-    winblend = vim.g.neovide and 100 or 0,
-    borderchars = { "", "", "", "", "", "", "", "" },
-  },
-  pickers = {
-    buffers = {
-      mappings = {
-        n = {
-          ["<C-d>"] = require('telescope.actions').delete_buffer,
-        },
-        i = {
-          ["<C-d>"] = require('telescope.actions').delete_buffer,
-        },
-      },
-    },
-  },
 })
 
 -- QoL
@@ -300,7 +301,7 @@ require("which-key").register({
   ["<leader><leader>"] = { "<cmd>Telescope buffers<cr>", "Show buffers" },
   ["<leader>f"] = {
     w = { "<cmd>Telescope live_grep<cr>", "Find word" },
-    f = { "<cmd>Telescope find_files path_display={'truncate'}<cr>", "Find file" },
+    f = { "<cmd>Telescope find_files<cr>", "Find file" },
     r = { "<cmd>Telescope oldfiles<cr>", "Recent files", noremap = false },
     n = { "<cmd>Telescope notify<cr>", "Show notification" },
     b = { "<cmd>Telescope buffers sort_lastused=true<cr>", "Show buffers" },
@@ -318,6 +319,7 @@ require("which-key").register({
     d = { toggleDiffview, "Git diff" },
     i = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
     b = { "<cmd>Telescope git_branches<cr>", "Git branches" },
+    B = { "<cmd>Gitsigns blame_line<cr>", "Git branches" },
     h = { "<cmd>Telescope git_bcommits<cr>", "Git file history" },
     H = { "<cmd>Telescope git_commits<cr>", "Git history" },
   },
@@ -350,10 +352,12 @@ require("which-key").register({
   ["]"] = {
     q = { '<cmd>cnext<cr>g`"', "Next quick list item", nowait = true },
     c = { "<cmd>Gitsigns next_hunk<cr>", "Next hunk", nowait = true },
+    d = { vim.diagnostic.goto_next, "Next diagnositc", nowait = true },
   },
   ["["] = {
     q = { '<cmd>cprevious<cr>g`"', "Previous quick list item", nowait = true },
     c = { "<cmd>Gitsigns prev_hunk<cr>", "Previous hunk", nowait = true },
+    d = { vim.diagnostic.goto_prev, "Next diagnositc", nowait = true },
   },
   ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
   ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
