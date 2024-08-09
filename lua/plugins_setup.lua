@@ -97,6 +97,7 @@ if vim.g.neovide then
   vim.opt.winblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_transparency = 0.90
+  vim.g.neovide_input_macos_alt_is_meta = true
 
   vim.g.neovide_floating_blur_amount_x = 5.0
   vim.g.neovide_floating_blur_amount_y = 5.0
