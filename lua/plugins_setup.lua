@@ -9,7 +9,7 @@ vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 vim.o.incsearch = true
-vim.wo.signcolumn = 'yes'
+vim.wo.signcolumn = 'auto:1'
 vim.opt.number = true
 vim.opt.autoindent = true
 vim.opt.tabstop = 2
@@ -19,8 +19,39 @@ vim.opt.expandtab = true
 vim.opt.colorcolumn = "81"
 vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
-vim.opt.nuw = 1
-vim.opt.statuscolumn = " %s%=%l "
+vim.opt.nuw = 2
+
+local M = {}
+_G.Status = M
+
+---@return {name:string, text:string, texthl:string}[]
+function M.get_signs()
+  local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+  return vim.tbl_map(function(sign)
+    return vim.fn.sign_getdefined(sign.name)[1]
+  end, vim.fn.sign_getplaced(buf, { group = "*", lnum = vim.v.lnum })[1].signs)
+end
+
+function M.column()
+  local sign, git_sign
+  for _, s in ipairs(M.get_signs()) do
+    if s.name:find("GitSign") then
+      git_sign = s
+    else
+      sign = s
+    end
+  end
+  local components = {
+    sign and (" %#" .. sign.texthl .. "#" .. sign.text .. "%*") or "",
+    [[%=]],
+    [[%{&nu?(&rnu&&v:relnum?v:relnum:v:lnum):''}]],
+    git_sign and ("%#" .. git_sign.texthl .. "#" .. git_sign.text .. "%*") or "  ",
+  }
+  return table.concat(components, "")
+end
+
+vim.opt.statuscolumn = [[%!v:lua.Status.column()]]
+
 
 local telescopeActions = require("telescope.actions")
 require('telescope').setup({
@@ -136,9 +167,9 @@ require("gitsigns").setup({
     untracked    = { text = '┆' },
   },
   signcolumn = true,
-  numhl = true,
+  numhl = false,
   current_line_blame = true,
-  _extmark_signs = true,
+  _extmark_signs = false,
 })
 require("diffview").setup()
 local function toggleDiffview()
@@ -298,7 +329,7 @@ ufo.setup()
 
 -- Which Key (NOTE: Some key mappings are set elswhere)
 require("which-key").register({
-  ["<leader><leader>"] = { "<cmd>Telescope buffers<cr>", "Show buffers" },
+  ["<leader><leader>"] = { "<cmd>Telescope buffers only_cwd=true<cr>", "Show buffers" },
   ["<leader>f"] = {
     w = { "<cmd>Telescope live_grep<cr>", "Find word" },
     f = { "<cmd>Telescope find_files<cr>", "Find file" },
