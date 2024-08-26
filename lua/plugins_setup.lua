@@ -21,36 +21,35 @@ vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
 vim.opt.nuw = 2
 
-local M = {}
-_G.Status = M
-
----@return {name:string, text:string, texthl:string}[]
-function M.get_signs()
-  local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
-  return vim.tbl_map(function(sign)
-    return vim.fn.sign_getdefined(sign.name)[1]
-  end, vim.fn.sign_getplaced(buf, { group = "*", lnum = vim.v.lnum })[1].signs)
-end
-
-function M.column()
-  local sign, git_sign
-  for _, s in ipairs(M.get_signs()) do
-    if s.name:find("GitSign") then
-      git_sign = s
-    else
-      sign = s
-    end
-  end
-  local components = {
-    sign and (" %#" .. sign.texthl .. "#" .. sign.text .. "%*") or "",
-    [[%=]],
-    [[%{&nu?(&rnu&&v:relnum?v:relnum:v:lnum):''}]],
-    git_sign and ("%#" .. git_sign.texthl .. "#" .. git_sign.text .. "%*") or "  ",
-  }
-  return table.concat(components, "")
-end
-
-vim.opt.statuscolumn = [[%!v:lua.Status.column()]]
+-- local M = {}
+-- _G.Status = M
+--
+-- function M.get_signs()
+--   local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+--   return vim.tbl_map(function(sign)
+--     return vim.fn.sign_getdefined(sign.name)[1]
+--   end, vim.fn.sign_getplaced(buf, { group = "*", lnum = vim.v.lnum })[1].signs)
+-- end
+--
+-- function M.column()
+--   local sign, git_sign
+--   for _, s in ipairs(M.get_signs()) do
+--     if s.name:find("GitSign") then
+--       git_sign = s
+--     else
+--       sign = s
+--     end
+--   end
+--   local components = {
+--     sign and (" %#" .. sign.texthl .. "#" .. sign.text .. "%*") or "",
+--     [[%=]],
+--     [[%{&nu?(&rnu&&v:relnum?v:relnum:v:lnum):''}]],
+--     git_sign and ("%#" .. git_sign.texthl .. "#" .. git_sign.text .. "%*") or "  ",
+--   }
+--   return table.concat(components, "")
+-- end
+--
+-- vim.opt.statuscolumn = [[%!v:lua.Status.column()]]
 
 
 local telescopeActions = require("telescope.actions")
@@ -91,8 +90,112 @@ require('github-theme').setup({
 })
 vim.cmd('colorscheme github_dark')
 
+require("scrollbar").setup({
+   marks = {
+        Cursor = {
+            text = "•",
+            priority = 0,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "Normal",
+        },
+        Search = {
+            text = { "•", "•" },
+            priority = 1,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "Search",
+        },
+        Error = {
+            text = { "•", "•" },
+            priority = 2,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "DiagnosticVirtualTextError",
+        },
+        Warn = {
+            text = { "•", "•" },
+            priority = 3,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "DiagnosticVirtualTextWarn",
+        },
+        Info = {
+            text = { "•", "•" },
+            priority = 4,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "DiagnosticVirtualTextInfo",
+        },
+        Hint = {
+            text = { "•", "•" },
+            priority = 5,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "DiagnosticVirtualTextHint",
+        },
+        Misc = {
+            text = { "•", "•" },
+            priority = 6,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "Normal",
+        },
+        GitAdd = {
+            text = "│",
+            priority = 7,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "GitSignsAdd",
+        },
+        GitChange = {
+            text = "│",
+            priority = 7,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "GitSignsChange",
+        },
+        GitDelete = {
+            text = "│",
+            priority = 7,
+            gui = nil,
+            color = nil,
+            cterm = nil,
+            color_nr = nil, -- cterm
+            highlight = "GitSignsDelete",
+        },
+    },
+})
+require("scrollbar.handlers.gitsigns").setup()
+
+-- Files
+local oil = require("oil")
+oil.setup()
+
+
 -- Neovide specific
 if vim.g.neovide then
+  vim.api.nvim_set_current_dir(vim.fn.expand("~"))
+  oil.open("~")
+  
   vim.o.guifont = "JetBrainsMono Nerd Font:h12"
   vim.opt.winblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
@@ -180,9 +283,6 @@ local function toggleDiffview()
     vim.cmd('DiffviewClose')
   end
 end
-
--- Files
-require("oil").setup()
 
 -- Syntax
 require("nvim-treesitter.configs").setup({
@@ -329,87 +429,65 @@ local ufo = require("ufo")
 ufo.setup()
 
 -- Which Key (NOTE: Some key mappings are set elswhere)
-require("which-key").register({
-  ["<leader><leader>"] = { "<cmd>Telescope buffers only_cwd=true<cr>", "Show buffers" },
-  ["<leader>f"] = {
-    w = { "<cmd>Telescope live_grep<cr>", "Find word" },
-    f = { "<cmd>Telescope find_files<cr>", "Find file" },
-    r = { "<cmd>Telescope oldfiles<cr>", "Recent files", noremap = false },
-    n = { "<cmd>Telescope notify<cr>", "Show notification" },
-    b = { "<cmd>Telescope buffers sort_lastused=true<cr>", "Show buffers" },
-    s = { "<cmd>Telescope lsp_document_symbols<cr>", "Show document symbols" },
-    S = { "<cmd>Telescope lsp_workspace_symbols<cr>", "Show workspace symbols" },
-    m = { "<cmd>LspZeroFormat<cr>", "Format buffer" },
-  },
-  ["<leader>q"] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Show current buffer diagnostics" },
-  ["<leader>Q"] = { "<cmd>Telescope diagnostics<cr>", "Show diagnostics" },
-  ["<leader>n"] = { "<cmd>enew<cr>", "New buffer" },
-  ["<leader>x"] = { "<cmd>bd<cr>", "Delete buffer" },
-  ["<leader>X"] = { closeOtherBuffers, "Delete other buffers" },
-  ["<leader>g"] = {
-    s = { "<cmd>Telescope git_status<cr>", "Git status" },
-    d = { toggleDiffview, "Git diff" },
-    i = { "<cmd>Gitsigns blame_line<cr>", "Git blame" },
-    b = { "<cmd>Telescope git_branches<cr>", "Git branches" },
-    B = { "<cmd>Gitsigns blame_line<cr>", "Git branches" },
-    h = { "<cmd>Telescope git_bcommits<cr>", "Git file history" },
-    H = { "<cmd>Telescope git_commits<cr>", "Git history" },
-  },
-  ["g"] = {
-    r = { "<cmd>Telescope lsp_references<cr>", "Find references" },
-    d = { "<cmd>Telescope lsp_definitions<cr>", "Find defenitions" },
-    D = { "<cmd>Telescope lsp_type_definitions<cr>", "Find type defenitions" },
-    i = { "<cmd>Telescope lsp_implementations<cr>", "Find implementation" },
-    I = { "<cmd>Telescope lsp_incoming_calls<cr>", "Find incoming calls" },
-    O = { "<cmd>Telescope lsp_outgoing_calls<cr>", "Find outgoing calls" },
-  },
-  ["<C-k>"] = { vim.lsp.buf.signature_help, "Show signature" },
-  ['<leader>r'] = {
-    n = { vim.lsp.buf.rename, "Rename" },
-    h = { "<cmd>Gitsigns reset_hunk<cr>", "Reset hunk" },
-  },
-  ['<leader>p'] = {
-    h = { "<cmd>Gitsigns preview_hunk<cr>", "Preview hunk" },
-  },
-  ['<leader>s'] = {
-    h = { "<cmd>Gitsigns stage_hunk<cr>", "Stage hunk" },
-  },
-  ['<leader>i'] = { vim.diagnostic.open_float, "Diagnostic float" },
-  ['<leader>t'] = { "<cmd>:terminal<cr>", "Terminal" },
-  ['<leader>e'] = { "<cmd>Telescope diagnostics bufnr=0<cr>", "Diagnostics buffer" },
-  ['<leader>E'] = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
-  ['<leader>k'] = {
-    m = { "<cmd>Telescope keymaps<cr>", "Show Keymaps" },
-  },
-  ["]"] = {
-    q = { '<cmd>cnext<cr>g`"', "Next quick list item", nowait = true },
-    c = { "<cmd>Gitsigns next_hunk<cr>", "Next hunk", nowait = true },
-    d = { vim.diagnostic.goto_next, "Next diagnositc", nowait = true },
-  },
-  ["["] = {
-    q = { '<cmd>cprevious<cr>g`"', "Previous quick list item", nowait = true },
-    c = { "<cmd>Gitsigns prev_hunk<cr>", "Previous hunk", nowait = true },
-    d = { vim.diagnostic.goto_prev, "Next diagnositc", nowait = true },
-  },
-  ["<Tab>"] = { "<cmd>bnext<cr>", "Next buffer", nowait = true },
-  ["<S-Tab>"] = { "<cmd>bprevious<cr>", "Previous buffer", nowait = true },
-  ["<leader>c"] = {
-    a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code actions" },
-  },
-  ["<C-w>"] = {
-    c = { "<cmd>tabclose<cr>", "Close tab" },
-    t = { "<cmd>tabnew<cr>", "New tab" },
-  },
-  ["<M-h>"] = { "<C-w>h", "Go to the left window" },
-  ["<M-j>"] = { "<C-w>j", "Go to the down window" },
-  ["<M-k>"] = { "<C-w>k", "Go to the up window" },
-  ["<M-l>"] = { "<C-w>l", "Go to the right window" },
-  ["<M-S-h>"] = { "<C-w><", "Decrease width" },
-  ["<M-S-j>"] = { "<C-w>-", "Decrese height" },
-  ["<M-S-k>"] = { "<C-w>+", "Increase height" },
-  ["<M-S-l>"] = { "<C-w>>", "Increase width" },
-  ["<M-e>"] = { "<C-w>_<C-w>|", "Expand" },
-  ["<M-S-e>"] = { "<C-w>=", "Un-Expand" },
+require("which-key").add({
+  { "<C-k>", vim.lsp.buf.signature_help, desc = "Show signature" },
+  { "<C-w>c", "<cmd>tabclose<cr>", desc = "Close tab" },
+  { "<C-w>t", "<cmd>tabnew<cr>", desc = "New tab" },
+  { "<M-S-e>", "<C-w>=", desc = "Un-Expand" },
+  { "<M-S-h>", "<C-w><", desc = "Decrease width" },
+  { "<M-S-j>", "<C-w>-", desc = "Decrese height" },
+  { "<M-S-k>", "<C-w>+", desc = "Increase height" },
+  { "<M-S-l>", "<C-w>>", desc = "Increase width" },
+  { "<M-e>", "<C-w>_<C-w>|", desc = "Expand" },
+  { "<M-h>", "<C-w>h", desc = "Go to the left window" },
+  { "<M-j>", "<C-w>j", desc = "Go to the down window" },
+  { "<M-k>", "<C-w>k", desc = "Go to the up window" },
+  { "<M-l>", "<C-w>l", desc = "Go to the right window" },
+  { "<S-Tab>", "<cmd>bprevious<cr>", desc = "Previous buffer", nowait = true },
+  { "<Tab>", "<cmd>bnext<cr>", desc = "Next buffer", nowait = true },
+  { "<leader><leader>", "<cmd>Telescope buffers<cr>", desc = "Show buffers" },
+  { "<leader>E", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+  { "<leader>Q", "<cmd>Telescope diagnostics<cr>", desc = "Show diagnostics" },
+  { "<leader>X", closeOtherBuffers, desc = "Delete other buffers" },
+  { "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code actions" },
+  { "<leader>e", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Diagnostics buffer" },
+  { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Show workspace symbols" },
+  { "<leader>fb", "<cmd>Telescope buffers sort_lastused=true<cr>", desc = "Show buffers" },
+  { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find file" },
+  { "<leader>fm", "<cmd>LspZeroFormat<cr>", desc = "Format buffer" },
+  { "<leader>fn", "<cmd>Telescope notify<cr>", desc = "Show notification" },
+  { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files", remap = true },
+  { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Show document symbols" },
+  { "<leader>fw", "<cmd>Telescope live_grep<cr>", desc = "Find word" },
+  { "<leader>gB", "<cmd>Gitsigns blame_line<cr>", desc = "Git branches" },
+  { "<leader>gH", "<cmd>Telescope git_commits<cr>", desc = "Git history" },
+  { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git branches" },
+  { "<leader>gd", toggleDiffview, desc = "Git diff" },
+  { "<leader>gh", "<cmd>Telescope git_bcommits<cr>", desc = "Git file history" },
+  { "<leader>gi", "<cmd>Gitsigns blame_line<cr>", desc = "Git blame" },
+  { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git status" },
+  { "<leader>i", vim.diagnostic.open_float, desc = "Diagnostic float" },
+  { "<leader>km", "<cmd>Telescope keymaps<cr>", desc = "Show Keymaps" },
+  { "<leader>n", "<cmd>enew<cr>", desc = "New buffer" },
+  { "<leader>ph", "<cmd>Gitsigns preview_hunk<cr>", desc = "Preview hunk" },
+  { "<leader>q", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Show current buffer diagnostics" },
+  { "<leader>rh", "<cmd>Gitsigns reset_hunk<cr>", desc = "Reset hunk" },
+  { "<leader>rn", vim.lsp.buf.rename, desc = "Rename" },
+  { "<leader>sh", "<cmd>Gitsigns stage_hunk<cr>", desc = "Stage hunk" },
+  { "<leader>t", "<cmd>:terminal<cr>", desc = "Terminal" },
+  { "<leader>x", "<cmd>bd<cr>", desc = "Delete buffer" },
+  { "[c", "<cmd>Gitsigns prev_hunk<cr>", desc = "Previous hunk", nowait = true },
+  { "[d", vim.diagnostic.goto_next, desc = "Next diagnositc", nowait = true },
+  { "[q", '<cmd>cprevious<cr>g`"', desc = "Previous quick list item", nowait = true },
+  { "]c", "<cmd>Gitsigns next_hunk<cr>", desc = "Next hunk", nowait = true },
+  { "]d", vim.diagnostic.goto_prev, desc = "Next diagnositc", nowait = true },
+  { "]q", '<cmd>cnext<cr>g`"', desc = "Next quick list item", nowait = true },
+  { "gD", "<cmd>Telescope lsp_type_definitions<cr>", desc = "Find type defenitions" },
+  { "gI", "<cmd>Telescope lsp_incoming_calls<cr>", desc = "Find incoming calls" },
+  { "gO", "<cmd>Telescope lsp_outgoing_calls<cr>", desc = "Find outgoing calls" },
+  { "gd", "<cmd>Telescope lsp_definitions<cr>", desc = "Find defenitions" },
+  { "gi", "<cmd>Telescope lsp_implementations<cr>", desc = "Find implementation" },
+  { "gr", "<cmd>Telescope lsp_references<cr>", desc = "Find references" },
 })
 
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory", nowait = true })

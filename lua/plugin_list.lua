@@ -10,6 +10,10 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
+    dependencies = {
+      "echasnovski/mini.icons",
+      "nvim-tree/nvim-web-devicons",
+    },
   },
   {
     'nvim-telescope/telescope-fzf-native.nvim',
@@ -111,5 +115,11 @@ return {
   {
     "ggandor/leap.nvim",
     lazy = false,
+  },
+  {
+    "petertriho/nvim-scrollbar",
+    dependencies = {
+      "lewis6991/gitsigns.nvim",
+    }
   },
 }
