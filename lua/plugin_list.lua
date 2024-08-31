@@ -116,10 +116,13 @@ return {
     "ggandor/leap.nvim",
     lazy = false,
   },
+  -- {
+  --   "petertriho/nvim-scrollbar",
+  --   dependencies = {
+  --     "lewis6991/gitsigns.nvim",
+  --   }
+  -- },
   {
-    "petertriho/nvim-scrollbar",
-    dependencies = {
-      "lewis6991/gitsigns.nvim",
-    }
-  },
+    "luukvbaal/statuscol.nvim",
+  }
 }
