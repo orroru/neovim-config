@@ -21,36 +21,6 @@ vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
 vim.opt.nuw = 2
 
--- local M = {}
--- _G.Status = M
---
--- function M.get_signs()
---   local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
---   return vim.tbl_map(function(sign)
---     return vim.fn.sign_getdefined(sign.name)[1]
---   end, vim.fn.sign_getplaced(buf, { group = "*", lnum = vim.v.lnum })[1].signs)
--- end
---
--- function M.column()
---   local sign, git_sign
---   for _, s in ipairs(M.get_signs()) do
---     if s.name:find("GitSign") then
---       git_sign = s
---     else
---       sign = s
---     end
---   end
---   local components = {
---     sign and (" %#" .. sign.texthl .. "#" .. sign.text .. "%*") or "",
---     [[%=]],
---     [[%{&nu?(&rnu&&v:relnum?v:relnum:v:lnum):''}]],
---     git_sign and ("%#" .. git_sign.texthl .. "#" .. git_sign.text .. "%*") or "  ",
---   }
---   return table.concat(components, "")
--- end
---
--- vim.opt.statuscolumn = [[%!v:lua.Status.column()]]
-
 local telescopeActions = require("telescope.actions")
 require('telescope').setup({
   defaults = {
@@ -92,106 +62,9 @@ require('github-theme').setup({
 })
 vim.cmd('colorscheme github_dark')
 
--- require("scrollbar").setup({
---   marks = {
---     Cursor = {
---       text = "•",
---       priority = 0,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "Normal",
---     },
---     Search = {
---       text = { "•", "•" },
---       priority = 1,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "Search",
---     },
---     Error = {
---       text = { "•", "•" },
---       priority = 2,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "DiagnosticVirtualTextError",
---     },
---     Warn = {
---       text = { "•", "•" },
---       priority = 3,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "DiagnosticVirtualTextWarn",
---     },
---     Info = {
---       text = { "•", "•" },
---       priority = 4,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "DiagnosticVirtualTextInfo",
---     },
---     Hint = {
---       text = { "•", "•" },
---       priority = 5,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "DiagnosticVirtualTextHint",
---     },
---     Misc = {
---       text = { "•", "•" },
---       priority = 6,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "Normal",
---     },
---     GitAdd = {
---       text = "│",
---       priority = 7,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "GitSignsAdd",
---     },
---     GitChange = {
---       text = "│",
---       priority = 7,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "GitSignsChange",
---     },
---     GitDelete = {
---       text = "│",
---       priority = 7,
---       gui = nil,
---       color = nil,
---       cterm = nil,
---       color_nr = nil, -- cterm
---       highlight = "GitSignsDelete",
---     },
---   },
--- })
--- require("scrollbar.handlers.gitsigns").setup()
-
 -- Files
 local oil = require("oil")
 oil.setup()
-
 
 -- Neovide specific
 if vim.g.neovide then
@@ -236,6 +109,9 @@ require("deadcolumn").setup({
 require("sttusline").setup({
   statusline_color = "Normal",
   laststatus = 3,
+  disabled = {
+    buftypes = {}, -- Enables statusline in terminal
+  }
 })
 
 local diagnostic_icons = {
@@ -250,7 +126,21 @@ vim.diagnostic.config({
 })
 
 -- QoL
-require("better_escape").setup({ mapping = { "jk" } })
+require("better_escape").setup({
+  default_mappings = false,
+  mappings = {
+    i = {
+      j = {
+        k = "<Esc>",
+      },
+    },
+    t = {
+      j = {
+        k = "<C-\\><C-n>",
+      },
+    },
+  },
+})
 
 local function closeOtherBuffers()
   local curbufnr = vim.api.nvim_get_current_buf()
@@ -501,7 +391,6 @@ vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
 vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)', { desc = "Leap forward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)', { desc = "Leap backward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'gs', '<Plug>(leap-from-window)', { desc = "Leap from window" })
-vim.keymap.set("t", '<C-Space>', '<C-\\><C-n>', { desc = "Escape terminal mode" })
 
 require("Comment").setup({
   toggler = {
@@ -518,7 +407,6 @@ require("Comment").setup({
     eol = "<leader>cl",
   }
 })
-
 
 local builtin = require("statuscol.builtin")
 require("statuscol").setup({
