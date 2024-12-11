@@ -12,14 +12,15 @@ vim.o.incsearch = true
 vim.wo.signcolumn = 'auto:1'
 vim.opt.number = true
 vim.opt.autoindent = true
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.softtabstop = 2
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 vim.opt.colorcolumn = "81"
 vim.opt.laststatus = 3
 vim.opt.scrolloff = 5
 vim.opt.nuw = 2
+vim.opt.clipboard = "unnamedplus"
 
 local telescopeActions = require("telescope.actions")
 require('telescope').setup({
@@ -75,7 +76,7 @@ if vim.g.neovide then
   vim.opt.winblend = 100
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_transparency = 0.90
-  vim.g.neovide_input_macos_alt_is_meta = true
+  -- vim.g.neovide_input_macos_alt_is_meta = true
 
   vim.g.neovide_floating_blur_amount_x = 5.0
   vim.g.neovide_floating_blur_amount_y = 5.0
@@ -134,11 +135,6 @@ require("better_escape").setup({
         k = "<Esc>",
       },
     },
-    t = {
-      j = {
-        k = "<C-\\><C-n>",
-      },
-    },
   },
 })
 
@@ -146,7 +142,7 @@ local function closeOtherBuffers()
   local curbufnr = vim.api.nvim_get_current_buf()
   local buflist = vim.api.nvim_list_bufs()
   for _, bufnr in ipairs(buflist) do
-    if vim.bo[bufnr].buflisted and bufnr ~= curbufnr then
+    if vim.bo[bufnr].buflisted and bufnr ~= curbufnr and vim.bo[bufnr].buftype ~= "terminal" then
       vim.cmd('bd ' .. tostring(bufnr))
     end
   end
@@ -391,6 +387,7 @@ vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith)
 vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)', { desc = "Leap forward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)', { desc = "Leap backward" })
 vim.keymap.set({ 'n', 'x', 'o' }, 'gs', '<Plug>(leap-from-window)', { desc = "Leap from window" })
+vim.keymap.set("t", '<C-Space>', '<C-\\><C-n>', { desc = "Escape terminal mode" })
 
 require("Comment").setup({
   toggler = {
